@@ -10,10 +10,11 @@ You can use the --help flag in every other command than
 help.
 
 Common commands:
-  create    create a new context
-  list      print all existing context.
+  create    Create a new context
+  list      Print all existing context.
+  edit      Open your current editor and edit the context.
 
-All other commands
+All other commands:
   help      print usage
 '
 }
@@ -21,17 +22,40 @@ All other commands
 _yggradrasil_create_usage() {
 echo 'Usage: yggdrasil create <context-name> [--help]
 
-Create permits to create a new context. It will
+This command permits to create a new context. It will
 open your current text editor to set variable name.
 Notice that if the current context already exist, it
 will be reset.
 
-Note: you can not name your context "None".
+Note:
+-> you can not name your context "None".
+-> you can not set a variable name by CURRENT_CONTEXT.
 '
 }
 
+_yggradrasil_edit_usage() {
+echo 'Usage: yggdrasil edit <context-name> [--help]
+
+This command permits to update a new context. It will
+open your current text editor to update existing variable
+or add new variable in the list.
+If the context does not exist, this command will fail.
+
+Note:
+-> you can not name your context "None".
+-> you can not set a variable name by CURRENT_CONTEXT.
+'
+}
+
+_yggdrasil_edit_file() {
+local base_dir="."
+local context_dir="$base_dir/tmp"
+"${EDITOR:-vi}" "$context_dir/$1"
+}
+
 _yggdrasil_create_file() {
-local context_dir="./tmp"
+local base_dir="."
+local context_dir="$base_dir/tmp"
 echo "# This file is a sample of context file.
 
 # Please write the variable\'s name is upper case and the value
@@ -39,15 +63,16 @@ echo "# This file is a sample of context file.
 
 # VARIABLE-NAME=VALUE
 " > "$context_dir/$1"
-    "${EDITOR:-vi}" "$context_dir/$1"
+
 }
 
 _yggdrasil_create() {
-local context_dir="./tmp"
+local base_dir="."
+local context_dir="$base_dir/tmp"
 if [[ "$#" -eq 0 || "$1" == "--help" || "$2" == "--help" ]]; then
     _yggradrasil_create_usage
 elif [[ "$1" == "None" ]]; then
-    echo "Invalid name. Please pick an other one."
+    echo "Invalid context name. Please pick an other one."
 elif [[ -f "$context_dir/$1" ]]; then
     echo "Context file already exist. Do you want to reset the context? [Y/N]"
     read answer
@@ -61,6 +86,20 @@ elif [[ -f "$context_dir/$1" ]]; then
 else
     _yggdrasil_create_file $1
 fi    
+}
+
+_yggdrasil_edit() {
+local base_dir="."
+local context_dir="$base_dir/tmp"
+if [[ "$#" -eq 0 || "$1" == "--help" || "$2" == "--help" ]]; then
+    _yggradrasil_edit_usage
+elif [[ "$1" == "None" ]]; then
+    echo "Invalid context name. Please pick an other one."
+elif [[ -f "$context_dir/$1" ]]; then
+    _yggdrasil_edit_file $1
+else
+    echo 'This context does not exist. Please create it with the command "yggdrasil create"'
+fi
 }
 
 _yggdrasil_list() {
@@ -93,9 +132,8 @@ yggdrasil() {
             ;;
     "list") _yggdrasil_list $2 $3
             ;;
+    "edit") _yggdrasil_edit $2 $3
+            ;;
     *) _yggradrasil_global_usage;;
 esac
 }
-
-# TODO: To remove at the end of the project development
-yggdrasil $*
