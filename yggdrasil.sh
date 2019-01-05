@@ -71,14 +71,12 @@ exist.
 }
 
 _yggdrasil_edit_file() {
-local base_dir="."
-local context_dir="$base_dir/tmp"
+local context_dir="$YGGDRASIL_FOLDER/context"
 "${EDITOR:-vi}" "$context_dir/$1"
 }
 
 _yggdrasil_unset_context() {
-    local base_dir="."
-    local context_dir="$base_dir/tmp"
+    local context_dir="$YGGDRASIL_FOLDER/context"
 
     OLD_CONTEXT_NAME=$1
     if [[ $OLD_CONTEXT_NAME != "None" ]]; then
@@ -92,8 +90,7 @@ _yggdrasil_unset_context() {
 }
 
 _yggdrasil_set_context() {
-    local base_dir="."
-    local context_dir="$base_dir/tmp"
+    local context_dir="$YGGDRASIL_FOLDER/context"
 
     NEW_CONTEXT_NAME=$1
     
@@ -101,8 +98,8 @@ _yggdrasil_set_context() {
         source $context_dir/$NEW_CONTEXT_NAME
     fi
 
-    sed -i "1s/.*/CURRENT_CONTEXT=$1/" $base_dir/yggdrasil.conf
-    source $base_dir/yggdrasil.conf
+    sed -i "1s/.*/CURRENT_CONTEXT=$1/" $YGGDRASIL_FOLDER/yggdrasil.conf
+    source $YGGDRASIL_FOLDER/yggdrasil.conf
 }
 
 _yggdrasil_switch_context() {
@@ -111,8 +108,7 @@ _yggdrasil_switch_context() {
 }
 
 _yggdrasil_create_file() {
-local base_dir="."
-local context_dir="$base_dir/tmp"
+local context_dir="$YGGDRASIL_FOLDER/context"
 echo "# This file is a sample of context file.
 
 # Please write the variable\'s name is upper case and the value
@@ -124,8 +120,7 @@ echo "# This file is a sample of context file.
 }
 
 _yggdrasil_create() {
-local base_dir="."
-local context_dir="$base_dir/tmp"
+local context_dir="$YGGDRASIL_FOLDER/context"
 if [[ "$#" -eq 0 || "$1" == "--help" || "$2" == "--help" ]]; then
     _yggradrasil_create_usage
 elif [[ "$1" == "None" ]]; then
@@ -146,9 +141,8 @@ fi
 }
 
 _yggdrasil_edit() {
-local base_dir="."
-local context_dir="$base_dir/tmp"
-source $base_dir/yggdrasil.conf
+local context_dir="$YGGDRASIL_FOLDER/context"
+source $YGGDRASIL_FOLDER/yggdrasil.conf
 if [[ "$#" -eq 0 || "$1" == "--help" || "$2" == "--help" ]]; then
     _yggradrasil_edit_usage
 elif [[ "$1" == "None" ]]; then
@@ -161,9 +155,8 @@ fi
 }
 
 _yggdrasil_remove() {
-local base_dir="."
-source $base_dir/yggdrasil.conf
-local context_dir="$base_dir/tmp"
+source $YGGDRASIL_FOLDER/yggdrasil.conf
+local context_dir="$YGGDRASIL_FOLDER/context"
 if [[ "$#" -eq 0 || "$1" == "--help" || "$2" == "--help" ]]; then
     _yggdrasil_remove_usage
 elif [[ "$1" == "None" ]]; then
@@ -179,9 +172,8 @@ fi
 }
 
 _yggdrasil_use() {
-local base_dir="."
-source $base_dir/yggdrasil.conf
-local context_dir="$base_dir/tmp"
+source $YGGDRASIL_FOLDER/yggdrasil.conf
+local context_dir="$YGGDRASIL_FOLDER/context"
 if [[ "$#" -eq 0 || "$1" == "--help" || "$2" == "--help" ]]; then
     _yggdrasil_use_usage
 elif [[ -f "$context_dir/$1" || $1 == "None" ]]; then
@@ -192,15 +184,17 @@ fi
 }
 
 _yggdrasil_list() {
-local base_dir="."
-source $base_dir/yggdrasil.conf
-local context_dir="$base_dir/tmp"
+source $YGGDRASIL_FOLDER/yggdrasil.conf
+local context_dir="$YGGDRASIL_FOLDER/context"
 
 echo "This is a list of all contexts:"
 if [[ $CURRENT_CONTEXT == "None" ]]; then
     echo "* None (default)"
 else
     echo "  None (default)"
+fi
+if [ -z "$(ls -A $context_dir)" ]; then
+   return
 fi
 for context in "$context_dir"/*
 do
@@ -232,7 +226,7 @@ esac
 }
 
 yggdrasil_init() {
-    YGGDRASIL_FOLDER="~/.yggdrasil"
+    YGGDRASIL_FOLDER="$HOME/.yggdrasil"
     source $YGGDRASIL_FOLDER/yggdrasil.conf
 }
 
