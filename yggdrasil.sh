@@ -149,6 +149,9 @@ elif [[ "$1" == "None" ]]; then
     echo "Invalid context name. Please pick an other one."
 elif [[ -f "$context_dir/$1" ]]; then
     _yggdrasil_edit_file $1
+    if [[ "$1" == $CURRENT_CONTEXT ]]; then
+        source $context_dir/$1
+    fi
 else
     echo 'This context does not exist. Please create it with the command "yggdrasil create"'
 fi
