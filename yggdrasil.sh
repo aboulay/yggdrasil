@@ -14,6 +14,7 @@ Common commands:
   list      Print all existing context.
   edit      Open your current editor and edit the context.
   remove    Remove a specific existing context.
+  use       Change the current context to a new one.
 
 All other commands:
   help      print usage
@@ -60,10 +61,53 @@ Note:
 '
 }
 
+_yggdrasil_use_usage() {
+echo 'Usage: yggdrasil use <context-name> [--help]
+
+This command permits to change the current context by
+the selected one. It will fail if the context does not
+exist.
+'
+}
+
 _yggdrasil_edit_file() {
 local base_dir="."
 local context_dir="$base_dir/tmp"
 "${EDITOR:-vi}" "$context_dir/$1"
+}
+
+_yggdrasil_unset_context() {
+    local base_dir="."
+    local context_dir="$base_dir/tmp"
+
+    OLD_CONTEXT_NAME=$1
+    if [[ $OLD_CONTEXT_NAME != "None" ]]; then
+        for line in $(cat $context_dir/$OLD_CONTEXT_NAME | awk '{print $1;}' | cut -d "=" -f1)
+        do
+            if [[ $line != "#" && $line != "\n" ]]; then
+                unset $line
+            fi
+        done
+    fi
+}
+
+_yggdrasil_set_context() {
+    local base_dir="."
+    local context_dir="$base_dir/tmp"
+
+    NEW_CONTEXT_NAME=$1
+    
+    if [[ $NEW_CONTEXT_NAME != "None" ]]; then
+        source $context_dir/$NEW_CONTEXT_NAME
+    fi
+
+    sed -i "1s/.*/CURRENT_CONTEXT=$1/" $base_dir/yggdrasil.conf
+    source $base_dir/yggdrasil.conf
+}
+
+_yggdrasil_switch_context() {
+    _yggdrasil_unset_context $CURRENT_CONTEXT
+    _yggdrasil_set_context $1
 }
 
 _yggdrasil_create_file() {
@@ -74,7 +118,7 @@ echo "# This file is a sample of context file.
 # Please write the variable\'s name is upper case and the value
 # in lower case.
 
-# VARIABLE-NAME=VALUE
+# VARIABLE-NAME=\"VALUE\"
 " > "$context_dir/$1"
 
 }
@@ -104,7 +148,7 @@ fi
 _yggdrasil_edit() {
 local base_dir="."
 local context_dir="$base_dir/tmp"
-source 
+source $base_dir/yggdrasil.conf
 if [[ "$#" -eq 0 || "$1" == "--help" || "$2" == "--help" ]]; then
     _yggradrasil_edit_usage
 elif [[ "$1" == "None" ]]; then
@@ -126,12 +170,24 @@ elif [[ "$1" == "None" ]]; then
     echo "Invalid context name. Please pick an other one."
 elif [[ -f "$context_dir/$1" ]]; then
     if [[ $CURRENT_CONTEXT == $1 ]]; then
-        CURRENT_CONTEXT=None
-        # Futur call to edit_context
+        _yggdrasil_switch_context "None"
     fi
     rm "$context_dir/$1"
 else
     echo 'This context does not exist. It cannot be destroyed.'
+fi
+}
+
+_yggdrasil_use() {
+local base_dir="."
+source $base_dir/yggdrasil.conf
+local context_dir="$base_dir/tmp"
+if [[ "$#" -eq 0 || "$1" == "--help" || "$2" == "--help" ]]; then
+    _yggdrasil_use_usage
+elif [[ -f "$context_dir/$1" || $1 == "None" ]]; then
+    _yggdrasil_switch_context $1
+else
+    echo 'This context does not exist. Please create it with the command "yggdrasil create"'
 fi
 }
 
@@ -169,6 +225,8 @@ yggdrasil() {
             ;;
     "remove") _yggdrasil_remove $2 $3
             ;;
+    "use") _yggdrasil_use $2 $3
+           ;;
     *) _yggradrasil_global_usage;;
 esac
 }
