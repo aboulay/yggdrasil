@@ -13,6 +13,7 @@ Common commands:
   create    Create a new context
   list      Print all existing context.
   edit      Open your current editor and edit the context.
+  remove    Remove a specific existing context.
 
 All other commands:
   help      print usage
@@ -44,6 +45,18 @@ If the context does not exist, this command will fail.
 Note:
 -> you can not name your context "None".
 -> you can not set a variable name by CURRENT_CONTEXT.
+'
+}
+
+_yggdrasil_remove_usage() {
+echo 'Usage: yggdrasil remove <context-name> [--help]
+
+This command permits to remove an existing context. If the
+wanted context is the current context, the new context will
+be "None". If the context does not exist, it will fail.
+
+Note:
+-> "None" is an invalid context name.
 '
 }
 
@@ -91,6 +104,7 @@ fi
 _yggdrasil_edit() {
 local base_dir="."
 local context_dir="$base_dir/tmp"
+source 
 if [[ "$#" -eq 0 || "$1" == "--help" || "$2" == "--help" ]]; then
     _yggradrasil_edit_usage
 elif [[ "$1" == "None" ]]; then
@@ -99,6 +113,25 @@ elif [[ -f "$context_dir/$1" ]]; then
     _yggdrasil_edit_file $1
 else
     echo 'This context does not exist. Please create it with the command "yggdrasil create"'
+fi
+}
+
+_yggdrasil_remove() {
+local base_dir="."
+source $base_dir/yggdrasil.conf
+local context_dir="$base_dir/tmp"
+if [[ "$#" -eq 0 || "$1" == "--help" || "$2" == "--help" ]]; then
+    _yggdrasil_remove_usage
+elif [[ "$1" == "None" ]]; then
+    echo "Invalid context name. Please pick an other one."
+elif [[ -f "$context_dir/$1" ]]; then
+    if [[ $CURRENT_CONTEXT == $1 ]]; then
+        CURRENT_CONTEXT=None
+        # Futur call to edit_context
+    fi
+    rm "$context_dir/$1"
+else
+    echo 'This context does not exist. It cannot be destroyed.'
 fi
 }
 
@@ -133,6 +166,8 @@ yggdrasil() {
     "list") _yggdrasil_list $2 $3
             ;;
     "edit") _yggdrasil_edit $2 $3
+            ;;
+    "remove") _yggdrasil_remove $2 $3
             ;;
     *) _yggradrasil_global_usage;;
 esac
