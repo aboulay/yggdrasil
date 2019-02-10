@@ -98,7 +98,7 @@ _yggdrasil_set_context() {
         source $context_dir/$NEW_CONTEXT_NAME
     fi
 
-    sed -i "1s/.*/CURRENT_CONTEXT=$1/" $YGGDRASIL_FOLDER/yggdrasil.conf
+    sed -i'' -e ' "1s/.*/CURRENT_CONTEXT=$1/" $YGGDRASIL_FOLDER/yggdrasil.conf
     source $YGGDRASIL_FOLDER/yggdrasil.conf
 }
 
