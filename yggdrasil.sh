@@ -235,6 +235,7 @@ esac
 yggdrasil_init() {
     YGGDRASIL_FOLDER="$HOME/.yggdrasil"
     source $YGGDRASIL_FOLDER/yggdrasil.conf
+    _yggdrasil_set_context $CURRENT_CONTEXT
 }
 
 yggdrasil_init
