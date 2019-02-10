@@ -233,11 +233,4 @@ yggdrasil_init() {
     source $YGGDRASIL_FOLDER/yggdrasil.conf
 }
 
-yggdrasil_ps1() {
-local color_neutral='\033[0m'
-local color_header='\033[0;31m'
-local color_context='\033[0;36m'
-printf "(${color_header}\u264E${color_neutral}  ${color_context}$CURRENT_CONTEXT${color_neutral})"
-}
-
 yggdrasil_init
