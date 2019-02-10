@@ -94,7 +94,7 @@ _yggdrasil_set_context() {
 
     NEW_CONTEXT_NAME=$1
     if [[ $NEW_CONTEXT_NAME != "None" ]]; then
-        for line in $(cat $context_dir/$OLD_CONTEXT_NAME | awk '{print $1;}')
+        for line in $(cat $context_dir/$NEW_CONTEXT_NAME | awk '{print $1;}')
         do
             if [[ $line != "#" && $line != "\n" ]]; then
                 export $line
