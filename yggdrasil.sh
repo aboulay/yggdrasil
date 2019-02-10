@@ -93,12 +93,16 @@ _yggdrasil_set_context() {
     local context_dir="$YGGDRASIL_FOLDER/context"
 
     NEW_CONTEXT_NAME=$1
-    
     if [[ $NEW_CONTEXT_NAME != "None" ]]; then
-        source $context_dir/$NEW_CONTEXT_NAME
+        for line in $(cat $context_dir/$OLD_CONTEXT_NAME | awk '{print $1;}')
+        do
+            if [[ $line != "#" && $line != "\n" ]]; then
+                export $line
+            fi
+        done
     fi
 
-    sed -i'' -e "1s/.*/CURRENT_CONTEXT=$1/" $YGGDRASIL_FOLDER/yggdrasil.conf
+    sed -i'.old' -e "1s/.*/CURRENT_CONTEXT=$1/" $YGGDRASIL_FOLDER/yggdrasil.conf
     source $YGGDRASIL_FOLDER/yggdrasil.conf
 }
 
